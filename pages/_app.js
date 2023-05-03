@@ -1,6 +1,6 @@
-import App from "next/app";
-import Layout from "../components/Layout/Layout";
-import "semantic-ui-css/semantic.min.css";
+import App from 'next/app';
+import Layout from '../components/Layout/Layout';
+import 'semantic-ui-css/semantic.min.css';
 
 class MyApp extends App {
   render() {
@@ -8,7 +8,7 @@ class MyApp extends App {
 
     return (
       <Layout>
-        <Component style={{ paddingTop: "1rem " }} text></Component>
+        <Component style={{ paddingTop: '1rem ' }} text />
       </Layout>
     );
   }

@@ -7,6 +7,7 @@ import {
   TextArea,
   Divider,
 } from 'semantic-ui-react'; import axios from 'axios';
+import { loginUser } from '../utils/authUser';
 import baseUrl from '../utils/baseUrl';
 import {
   HeaderMessage,
@@ -44,7 +45,10 @@ function Login() {
     }
   }, [user]);
 
-  const handleSubmit = (e) => e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await loginUser(user, setErrorMsg, setFormLoading);
+  };
 
   return (
     <>

@@ -7,8 +7,13 @@ import {
   TextArea,
   Divider,
 } from 'semantic-ui-react';
+import axios from 'axios';
+import { registerUser } from '../utils/authUser';
+import uploadPic from '../utils/uploadPicToCloudinary';
+
 import CommonInputs from '../components/Common/CommonInputs';
 import ImageDropDiv from '../components/Common/ImageDropDiv';
+import baseUrl from '../utils/baseUrl';
 
 import {
   HeaderMessage,
@@ -45,6 +50,7 @@ function Signup() {
   const [mediaPreview, setMediaPreview] = useState(null);
   const [highlighted, setHighlighted] = useState(false);
   const inputRef = useRef();
+  let cancel;
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -60,7 +66,53 @@ function Signup() {
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormLoading(true);
+
+    let profilePicUrl;
+    if (media !== null) {
+      profilePicUrl = await uploadPic(media);
+    }
+
+    if (media !== null && !profilePicUrl) {
+      setFormLoading(false);
+      return setErrorMsg('Error Uploading Image');
+    }
+
+    await registerUser(user, profilePicUrl, setErrorMsg, setFormLoading);
+  };
+
+  const checkUsername = async () => {
+    setUsernameLoading(true);
+    try {
+      cancel && cancel();
+
+      const { CancelToken } = axios;
+
+      const res = await axios.get(`${baseUrl}/api/signup/${username}`, { cancelToken: new CancelToken((canceler) => {
+        cancel = canceler;
+      }) });
+      if (errorMsg !== null)setErrorMsg(null);
+
+      if (res.data === 'Available') {
+        setUsernameAvailable(true);
+        setUser((prev) => ({ ...prev, username }));
+      }
+    } catch (error) {
+      setErrorMsg('Username Not Available');
+      setUsernameAvailable(false);
+    }
+    setUsernameLoading(false);
+  };
+
+  useEffect(() => {
+    if (username === '') {
+      setUsernameAvailable(false);
+    } else {
+      checkUsername();
+    }
+  }, [username]);
 
   useEffect(() => {
     const isUser = Object.values({

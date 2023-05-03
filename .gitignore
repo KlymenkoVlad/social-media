@@ -5,6 +5,7 @@
 .env
 /.pnp
 .pnp.js
+next.config.js
 
 # testing
 /coverage
@@ -22,3 +23,5 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.next
+.next/cache
