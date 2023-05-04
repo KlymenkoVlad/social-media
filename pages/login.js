@@ -7,6 +7,7 @@ import {
   TextArea,
   Divider,
 } from 'semantic-ui-react'; import axios from 'axios';
+import cookie from 'js-cookie';
 import { loginUser } from '../utils/authUser';
 import baseUrl from '../utils/baseUrl';
 import {
@@ -49,6 +50,12 @@ function Login() {
     e.preventDefault();
     await loginUser(user, setErrorMsg, setFormLoading);
   };
+
+  useEffect(() => {
+    document.title = 'Welocme Back';
+    const userEmail = cookie.get('userEmail');
+    if (userEmail) setUser((prev) => ({ ...prev, email: userEmail }));
+  }, []);
 
   return (
     <>
