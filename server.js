@@ -7,9 +7,12 @@ const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 const dotenv = require('dotenv');
+const connectDb = require('./utilsServer/connectDb');
+
 const signup = require('./api/signup');
 const auth = require('./api/auth');
-const connectDb = require('./utilsServer/connectDb');
+const search = require('./api/search');
+const posts = require('./api/posts');
 
 dotenv.config({ path: './.env' });
 
@@ -21,6 +24,8 @@ nextApp.prepare().then(() => {
 
   app.use('/api/signup', signup);
   app.use('/api/auth', auth);
+  app.use('/api/search', search);
+  app.use('/api/posts', posts);
 
   app.all('*', (req, res) => handle(req, res));
 

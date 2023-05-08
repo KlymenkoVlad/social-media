@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Placeholder,
   Divider,
@@ -6,31 +6,31 @@ import {
   Button,
   Card,
   Container,
-  Icon
-} from "semantic-ui-react";
-import { range } from "lodash";
+  Icon,
+} from 'semantic-ui-react';
+import { range } from 'lodash';
 
 export const PlaceHolderPosts = () =>
-  range(1, 3).map(item => (
-    <>
+  range(1, 3).map((item) => (
+  <>
       <Placeholder key={item} fluid>
-        <Placeholder.Header image>
+      <Placeholder.Header image>
           <Placeholder.Line />
           <Placeholder.Line />
         </Placeholder.Header>
-        <Placeholder.Paragraph>
+      <Placeholder.Paragraph>
           <Placeholder.Line />
           <Placeholder.Line />
           <Placeholder.Line />
           <Placeholder.Line />
         </Placeholder.Paragraph>
-      </Placeholder>
+    </Placeholder>
       <Divider hidden />
     </>
-  ));
+));
 
-export const PlaceHolderSuggestions = () => (
-  <>
+export function PlaceHolderSuggestions() {
+  return (
     <List.Item>
       <Card color="red">
         <Placeholder>
@@ -56,34 +56,36 @@ export const PlaceHolderSuggestions = () => (
         </Card.Content>
       </Card>
     </List.Item>
-  </>
-);
+  );
+}
 
 export const PlaceHolderNotifications = () =>
-  range(1, 10).map(item => (
-    <>
+  range(1, 10).map((item) => (
+  <>
       <Placeholder key={item}>
-        <Placeholder.Header image>
+      <Placeholder.Header image>
           <Placeholder.Line />
           <Placeholder.Line />
         </Placeholder.Header>
-      </Placeholder>
+    </Placeholder>
       <Divider hidden />
     </>
-  ));
+));
 
-export const EndMessage = () => (
-  <Container textAlign="center">
-    <Icon name="refresh" size="large" />
-    <Divider hidden />
-  </Container>
-);
+export function EndMessage() {
+  return (
+    <Container textAlign="center">
+      <Icon name="refresh" size="large" />
+      <Divider hidden />
+    </Container>
+  );
+}
 
 export const LikesPlaceHolder = () =>
-  range(1, 6).map(item => (
-    <Placeholder key={item} style={{ minWidth: "200px" }}>
+  range(1, 6).map((item) => (
+  <Placeholder key={item} style={{ minWidth: '200px' }}>
       <Placeholder.Header image>
-        <Placeholder.Line length="full" />
-      </Placeholder.Header>
+      <Placeholder.Line length="full" />
+    </Placeholder.Header>
     </Placeholder>
-  ));
+));
