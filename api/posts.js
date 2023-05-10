@@ -22,11 +22,13 @@ router.post('/', authMiddleware, async (req, res) => {
     };
 
     if (location)newPost.location = location;
-    if (picUrl)newPost.picUrl;
+    if (picUrl) newPost.picUrl = picUrl;
 
     const post = await new PostModel(newPost).save();
 
-    return res.json(post._id);
+    const postCreated = await PostModel.findById(post._id).populate('user');
+
+    return res.json(postCreated);
   } catch (error) {
     console.error(error);
     return res.status(500).send('Server error');
@@ -34,10 +36,28 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 router.get('/', authMiddleware, async (req, res) => {
+  const { pageNumber } = req.query;
+
+  const number = +pageNumber;
+  const size = 8;
+
   try {
-    const posts = await PostModel.find().sort({ createdAt: -1 })
-      .populate('user')
-      .populate('comments.user');
+    let posts;
+
+    if (number === 1) {
+      posts = await PostModel.find().sort({ createdAt: -1 })
+        .limit(size)
+        .populate('user')
+        .populate('comments.user');
+    } else {
+      const skips = size * (number - 1);
+      posts = await PostModel.find()
+        .skip(skips)
+        .limit(size)
+        .sort({ createdAt: -1 })
+        .populate('user')
+        .populate('comments.user');
+    }
 
     return res.json(posts);
   } catch (error) {

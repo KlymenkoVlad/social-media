@@ -14,15 +14,44 @@ import Link from 'next/link';
 import PostComments from './PostComments';
 import CommentInputField from './CommentInputField';
 import calculateTime from '../../utils/calculateTime';
+import { deletePost, likePost } from '../../utils/postActions';
+import LikesList from './LikesList';
+import ImageModel from './ImageModel';
+import NoImageModel from './NoImageModel';
 
 function CardPost({ post, user, setPosts, setShowToastr }) {
   const [likes, setLikes] = useState(post.likes);
   const isLiked = likes.length > 0 && likes.filter((like) => like.user === user._id).length > 0;
   const [comments, setComments] = useState(post.comments);
   const [error, setError] = useState(null);
-
+  const [showModal, setShowModal] = useState(false);
+  const addPropsToModal = () => ({
+    post,
+    user,
+    setLikes,
+    likes,
+    isLiked,
+    comments,
+    setComments,
+  });
   return (
     <>
+
+      {showModal && (
+      <Modal
+        open={showModal}
+        closeIcon
+        closeOnDimmerClick
+        onClose={() => setShowModal(false)}
+      >
+        <Modal.Content>
+          {post.picUrl
+            ? <ImageModel {...addPropsToModal()} />
+            : <NoImageModel {...addPropsToModal()} />}
+        </Modal.Content>
+      </Modal>
+      )}
+
       <Segment basic>
         <Card color="teal" fluid>
           {post.picUrl && (
@@ -33,6 +62,7 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
             wrapped
             ui={false}
             alt="PostImage"
+            onClick={() => setShowModal(true)}
           />
           )}
 
@@ -55,7 +85,12 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
               <Header as="h4" content="Are you sure?" />
               <p>This action is irresiversible!</p>
 
-              <Button color="red" icon="trash" content="Delete" />
+              <Button
+                color="red"
+                icon="trash"
+                content="Delete"
+                onClick={() => deletePost(post._id, setPosts, setShowToastr)}
+              />
             </Popup>
             )}
 
@@ -83,13 +118,17 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
               name={isLiked ? 'heart' : 'heart outline'}
               color="red"
               style={{ cursor: 'pointer' }}
+              onClick={() => likePost(post._id, user._id, setLikes, !isLiked)}
             />
 
-            {likes.length > 0 && (
-            <span className="spanLikesList">
+            <LikesList
+              postId={post._id}
+              trigger={likes.length > 0 && (
+              <span className="spanLikesList">
                 {`${likes.length} ${likes.length === 1 ? 'like' : 'likes'}`}
-            </span>
-            )}
+              </span>
+              )}
+            />
 
             <Icon name="comment outline" style={{ marginLeft: '7px' }} color="blue" />
 
@@ -105,7 +144,15 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
               )
             ))}
 
-            {comments.length > 3 && <Button content="View More" color="teal" basic circular />}
+            {comments.length > 3 && (
+            <Button
+              content="View More"
+              color="teal"
+              basic
+              circular
+              onClick={() => setShowModal(true)}
+            />
+            )}
 
             <Divider hidden />
 
