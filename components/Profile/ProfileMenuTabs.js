@@ -9,8 +9,6 @@ function ProfileMenuTabs({
   ownAccount,
   loggedUserFollowStats,
 }) {
-  console.log(followersLength);
-  console.log(followingLength);
   return (
     <Menu pointing secondary>
       <Menu.Item

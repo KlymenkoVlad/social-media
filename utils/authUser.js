@@ -10,7 +10,7 @@ const setToken = (token) => {
   Router.push('/');
 };
 
-export const registerUser = async (user, profilePicUrl, setError) => {
+export const registerUser = async (user, profilePicUrl, setError, setLoading) => {
   try {
     const res = await axios.post(`${baseUrl}/api/signup`, { user, profilePicUrl });
 
@@ -19,6 +19,7 @@ export const registerUser = async (user, profilePicUrl, setError) => {
     const errorMsg = catchErors(error);
     setError(errorMsg);
   }
+  setLoading(false);
 };
 
 export const redirectUser = (ctx, location) => {
@@ -40,6 +41,7 @@ export const loginUser = async (user, setError, setLoading) => {
     const errorMsg = catchErors(error);
     setError(errorMsg);
   }
+  setLoading(false);
 };
 
 export const logoutUser = (email) => {

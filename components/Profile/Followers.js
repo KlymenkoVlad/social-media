@@ -19,8 +19,6 @@ function Followers({
   const [loading, setLoading] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
 
-  console.log(profileUserId);
-
   useEffect(() => {
     const getFollowers = async () => {
       try {

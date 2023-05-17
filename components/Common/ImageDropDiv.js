@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Segment, Image, Icon, Header } from 'semantic-ui-react';
+import { useRouter } from 'next/router';
 
 function ImageDropDiv({
   highlighted,
@@ -9,7 +10,10 @@ function ImageDropDiv({
   mediaPreview,
   setMediaPreview,
   setMedia,
+  profilePicUrl,
 }) {
+  const router = useRouter();
+  const signupRoute = router.pathname === '/signup';
   return (
     <Form.Field>
       <Segment placeholder basic secondary>
@@ -35,24 +39,33 @@ function ImageDropDiv({
             e.preventDefault();
             setHighlighted(true);
 
-            // !console.log(e.dataTransfer.files[0]);
-            // ? const droppedFile = Array.from(e.dataTransfer.files);
-            //! console.log(droppedFile);
-
-            setMedia(e.dataTransfer.files[0]);
-            setMediaPreview(URL.createObjectURL(e.dataTransfer.files[0]));
+            const droppedFile = Array.from(e.dataTransfer.files);
+            setMedia(droppedFile[0]);
+            setMediaPreview(URL.createObjectURL(droppedFile[0]));
           }}
         >
           {mediaPreview === null ? (
             <Segment color={highlighted ? 'green' : ''} placeholder basic>
-              <Header icon>
-                <Icon
-                  name="file image outline"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => inputRef.current.click()}
-                />
-                Drag n Drop or Click to Upload Image
-              </Header>
+              {signupRoute ? (
+                <Header icon>
+                  <Icon
+                    name="file image outline"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => inputRef.current.click()}
+                  />
+                  Drag n Drop or Click to Upload Image
+                </Header>
+              ) : (
+                <span style={{ textAlign: 'center' }}>
+                  <Image
+                    src={profilePicUrl}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => inputRef.current.click()}
+                    size="huge"
+                    centered
+                  />
+                </span>
+              )}
             </Segment>
           ) : (
             <Segment color="green" placeholder basic>
