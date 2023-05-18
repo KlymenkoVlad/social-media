@@ -1,42 +1,74 @@
-import { Message, Button } from "semantic-ui-react";
+import { Message, Button } from 'semantic-ui-react';
 
-export const NoProfilePosts = () => (
-  <>
-    <Message info icon="meh" header="Sorry" content="User has not posted anything yet!" />
-    <Button icon="long arrow alternate left" content="Go Back" as="a" href="/" />
-  </>
-);
+export function NoProfilePosts() {
+  return (
+    <>
+      <Message
+        info
+        icon="meh"
+        header="Sorry"
+        content="User has not posted anything yet!"
+      />
+      <Button
+        icon="long arrow alternate left"
+        content="Go Back"
+        as="a"
+        href="/"
+      />
+    </>
+  );
+}
 
-export const NoFollowData = ({ followersComponent, followingComponent }) => (
-  <>
-    {followersComponent && (
-      <Message icon="user outline" info content="User does not have followers" />
-    )}
+export function NoFollowData({ followersComponent, followingComponent }) {
+  return (
+    <>
+      {followersComponent && (
+        <Message
+          icon="user outline"
+          info
+          content="User does not have followers"
+        />
+      )}
 
-    {followingComponent && (
-      <Message icon="user outline" info content="User does not follow any users" />
-    )}
-  </>
-);
+      {followingComponent && (
+        <Message
+          icon="user outline"
+          info
+          content="User does not follow any users"
+        />
+      )}
+    </>
+  );
+}
 
-export const NoMessages = () => (
-  <Message
-    info
-    icon="telegram plane"
-    header="Sorry"
-    content="You have not messaged anyone yet.Search above to message someone!"
-  />
-);
+export function NoMessages() {
+  return (
+    <Message
+      info
+      icon="telegram plane"
+      header="Sorry"
+      content="You have not messaged anyone yet.Search above to message someone!"
+    />
+  );
+}
 
-export const NoPosts = () => (
-  <Message
-    info
-    icon="meh"
-    header="Hey!"
-    content="No Posts. Make sure you have followed someone."
-  />
-);
+export function NoPosts() {
+  return (
+    <Message
+      info
+      icon="meh"
+      header="Hey!"
+      content="No Posts. Make sure you have followed someone."
+    />
+  );
+}
 
-export const NoProfile = () => (
-  <Message info icon="meh" header="Hey!" content="No Profile Found." />
-);
+export function NoPostFound() {
+  return (
+    <Message info icon="meh" header="Hey!" content="This Post doesn`t exist" />
+  );
+}
+
+export function NoProfile() {
+  return <Message info icon="meh" header="Hey!" content="No Profile Found." />;
+}

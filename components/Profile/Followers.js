@@ -26,12 +26,12 @@ function Followers({
 
         const res = await axios.get(
           `${baseUrl}/api/profile/followers/${profileUserId}`,
-          { headers: { Authorization: cookie.get('token') } },
+          { headers: { Authorization: cookie.get('token') } }
         );
 
         setFollowers(res.data);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         alert('Error loading followers');
       }
       setLoading(false); // Update the loading state to false after setting the followers
@@ -44,19 +44,19 @@ function Followers({
     <>
       {loading ? (
         <Spinner />
-      ) : (
-        followers.length > 0
-          ? followers.map((profileFollower) => {
-            const isFollowing = loggedUserFollowStats.following.length > 0
-            && loggedUserFollowStats.following.filter(
-              (following) => following.user === profileFollower.user._id,
+      ) : followers.length > 0 ? (
+        followers.map((profileFollower) => {
+          const isFollowing =
+            loggedUserFollowStats.following.length > 0 &&
+            loggedUserFollowStats.following.filter(
+              (following) => following.user === profileFollower.user._id
             ).length > 0;
 
-            return (
-              <List key={profileFollower.user._id} divided verticalAlign="middle">
-                <List.Item>
-                  <List.Content floated="right">
-                    {profileFollower.user._id !== user._id && (
+          return (
+            <List key={profileFollower.user._id} divided verticalAlign="middle">
+              <List.Item>
+                <List.Content floated="right">
+                  {profileFollower.user._id !== user._id && (
                     <Button
                       color={isFollowing ? 'instagram' : 'twitter'}
                       content={isFollowing ? 'Following' : 'Follow'}
@@ -65,22 +65,30 @@ function Followers({
                       onClick={async () => {
                         setFollowLoading(true);
                         isFollowing
-                          ? await unfollowUser(profileFollower.user._id, setLoggedUserFollowStats)
-                          : await followUser(profileFollower.user._id, setLoggedUserFollowStats);
+                          ? await unfollowUser(
+                              profileFollower.user._id,
+                              setLoggedUserFollowStats
+                            )
+                          : await followUser(
+                              profileFollower.user._id,
+                              setLoggedUserFollowStats
+                            );
                         setFollowLoading(false);
                       }}
                     />
-                    )}
-                  </List.Content>
+                  )}
+                </List.Content>
 
-                  <Image avatar src={profileFollower.user.profilePicUrl} />
-                  <List.Content as="a" href={`/${profileFollower.user.username}`}>
-                    {profileFollower.user.name}
-                  </List.Content>
-                </List.Item>
-              </List>
-            );
-          }) : <NoFollowData followersComponent />
+                <Image avatar src={profileFollower.user.profilePicUrl} />
+                <List.Content as="a" href={`/${profileFollower.user.username}`}>
+                  {profileFollower.user.name}
+                </List.Content>
+              </List.Item>
+            </List>
+          );
+        })
+      ) : (
+        <NoFollowData followersComponent />
       )}
     </>
   );

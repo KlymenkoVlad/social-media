@@ -32,7 +32,8 @@ function ProfilePage({
   const [activeItem, setActiveItem] = useState('profile');
   const handleItemClick = (item) => setActiveItem(item);
 
-  const [loggedUserFollowStats, setLoggedUserFollowStats] = useState(userFollowStats);
+  const [loggedUserFollowStats, setLoggedUserFollowStats] =
+    useState(userFollowStats);
 
   const [showToastr, setShowToastr] = useState(false);
 
@@ -49,7 +50,7 @@ function ProfilePage({
 
         const res = await axios.get(
           `${baseUrl}/api/profile/posts/${username}`,
-          { headers: { Authorization: token } },
+          { headers: { Authorization: token } }
         );
 
         setPosts(res.data);
@@ -86,54 +87,57 @@ function ProfilePage({
         <Grid.Row>
           <Grid.Column>
             {activeItem === 'profile' && (
-            <>
+              <>
+                <ProfileHeader
+                  profile={profile}
+                  ownAccount={ownAccount}
+                  loggedUserFollowStats={loggedUserFollowStats}
+                  setLoggedUserFollowStats={setLoggedUserFollowStats}
+                  profileUserId={profile.user._id}
+                />
 
-              <ProfileHeader
-                profile={profile}
-                ownAccount={ownAccount}
+                {loading ? (
+                  <PlaceHolderPosts />
+                ) : posts.length > 0 ? (
+                  posts.map((post) => (
+                    <CardPost
+                      key={post._id}
+                      post={post}
+                      user={user}
+                      setPosts={setPosts}
+                      setShowToastr={setShowToastr}
+                    />
+                  ))
+                ) : (
+                  <NoProfilePosts />
+                )}
+              </>
+            )}
+
+            {activeItem === 'followers' && (
+              <Followers
+                user={user}
                 loggedUserFollowStats={loggedUserFollowStats}
                 setLoggedUserFollowStats={setLoggedUserFollowStats}
                 profileUserId={profile.user._id}
               />
-
-              {loading ? (
-                <PlaceHolderPosts />
-              ) : (
-                posts.length > 0 ? posts.map((post) => (
-                  <CardPost
-                    key={post._id}
-                    post={post}
-                    user={user}
-                    setPosts={setPosts}
-                    setShowToastr={setShowToastr}
-                  />
-                )) : (
-                  <NoProfilePosts />
-                )
-              )}
-            </>
-            )}
-
-            {activeItem === 'followers' && (
-            <Followers
-              user={user}
-              loggedUserFollowStats={loggedUserFollowStats}
-              setLoggedUserFollowStats={setLoggedUserFollowStats}
-              profileUserId={profile.user._id}
-            />
             )}
 
             {activeItem === 'following' && (
-            <Following
-              user={user}
-              loggedUserFollowStats={loggedUserFollowStats}
-              setLoggedUserFollowStats={setLoggedUserFollowStats}
-              profileUserId={profile.user._id}
-            />
+              <Following
+                user={user}
+                loggedUserFollowStats={loggedUserFollowStats}
+                setLoggedUserFollowStats={setLoggedUserFollowStats}
+                profileUserId={profile.user._id}
+              />
             )}
 
-            {activeItem === 'updateProfile' && <UpdateProfile Profile={profile} />}
-            {activeItem === 'settings' && <Settings newMessagePopup={user.newMessagePopup} />}
+            {activeItem === 'updateProfile' && (
+              <UpdateProfile Profile={profile} />
+            )}
+            {activeItem === 'settings' && (
+              <Settings newMessagePopup={user.newMessagePopup} />
+            )}
           </Grid.Column>
         </Grid.Row>
       </Grid>
@@ -148,10 +152,9 @@ export const getServerSideProps = async (ctx) => {
     const { username } = ctx.query;
     const { token } = parseCookies(ctx);
 
-    const res = await axios.get(
-      `${baseUrl}/api/profile/${username}`,
-      { headers: { Authorization: token } },
-    );
+    const res = await axios.get(`${baseUrl}/api/profile/${username}`, {
+      headers: { Authorization: token },
+    });
 
     const { profile, followersLength, followingLength } = res.data;
 

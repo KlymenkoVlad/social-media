@@ -1,60 +1,39 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { parseCookies } from 'nookies';
 import {
   Card,
   Icon,
   Image,
   Divider,
   Segment,
-  Button,
-  Popup,
-  Header,
-  Modal,
+  Container,
 } from 'semantic-ui-react';
 import Link from 'next/link';
-import PostComments from './PostComments';
-import CommentInputField from './CommentInputField';
-import calculateTime from '../../utils/calculateTime';
-import { deletePost, likePost } from '../../utils/postActions';
-import LikesList from './LikesList';
-import ImageModel from './ImageModel';
-import NoImageModel from './NoImageModel';
 
-function CardPost({ post, user, setPosts, setShowToastr }) {
+import PostComments from '../../components/Post/PostComments';
+import CommentInputField from '../../components/Post/CommentInputField';
+import LikesList from '../../components/Post/LikesList';
+import { likePost } from '../../utils/postActions';
+import calculateTime from '../../utils/calculateTime';
+import baseUrl from '../../utils/baseUrl';
+import { NoPostFound } from '../../components/Layout/NoData';
+
+function PostPage({ post, errorLoading, user }) {
+  if (errorLoading) {
+    return <NoPostFound />;
+  }
+
   const [likes, setLikes] = useState(post.likes);
+
   const isLiked =
     likes.length > 0 &&
     likes.filter((like) => like.user === user._id).length > 0;
-  const [comments, setComments] = useState(post.comments);
-  const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const addPropsToModal = () => ({
-    post,
-    user,
-    setLikes,
-    likes,
-    isLiked,
-    comments,
-    setComments,
-  });
-  return (
-    <>
-      {showModal && (
-        <Modal
-          open={showModal}
-          closeIcon
-          closeOnDimmerClick
-          onClose={() => setShowModal(false)}
-        >
-          <Modal.Content>
-            {post.picUrl ? (
-              <ImageModel {...addPropsToModal()} />
-            ) : (
-              <NoImageModel {...addPropsToModal()} />
-            )}
-          </Modal.Content>
-        </Modal>
-      )}
 
+  const [comments, setComments] = useState(post.comments);
+
+  return (
+    <Container text>
       <Segment basic>
         <Card color="teal" fluid>
           {post.picUrl && (
@@ -76,32 +55,6 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
               avatar
               circular
             />
-
-            {(user.role === 'root' || post.user._id === user._id) && (
-              <Popup
-                on="click"
-                position="top right"
-                trigger={
-                  <Image
-                    src="deleteIcon.svg"
-                    style={{ cursor: 'pointer' }}
-                    size="mini"
-                    floated="right"
-                  />
-                }
-              >
-                <Header as="h4" content="Are you sure?" />
-                <p>This action is irresiversible!</p>
-
-                <Button
-                  color="red"
-                  icon="trash"
-                  content="Delete"
-                  onClick={() => deletePost(post._id, setPosts, setShowToastr)}
-                />
-              </Popup>
-            )}
-
             <Card.Header>
               <Link href={`/${post.user.username}`}>{post.user.name}</Link>
             </Card.Header>
@@ -147,28 +100,15 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
             />
 
             {comments.length > 0 &&
-              comments.map(
-                (comment, i) =>
-                  i < 3 && (
-                    <PostComments
-                      key={comment._id}
-                      comment={comment}
-                      postId={post._id}
-                      user={user}
-                      setComments={setComments}
-                    />
-                  )
-              )}
-
-            {comments.length > 3 && (
-              <Button
-                content="View More"
-                color="teal"
-                basic
-                circular
-                onClick={() => setShowModal(true)}
-              />
-            )}
+              comments.map((comment) => (
+                <PostComments
+                  key={comment._id}
+                  comment={comment}
+                  postId={post._id}
+                  user={user}
+                  setComments={setComments}
+                />
+              ))}
 
             <Divider hidden />
 
@@ -181,8 +121,23 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
         </Card>
       </Segment>
       <Divider hidden />
-    </>
+    </Container>
   );
 }
 
-export default CardPost;
+PostPage.getInitialProps = async (ctx) => {
+  try {
+    const { postId } = ctx.query;
+    const { token } = parseCookies(ctx);
+
+    const res = await axios.get(`${baseUrl}/api/posts/${postId}`, {
+      headers: { Authorization: token },
+    });
+
+    return { post: res.data };
+  } catch (error) {
+    return { errorLoading: true };
+  }
+};
+
+export default PostPage;

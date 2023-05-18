@@ -14,6 +14,7 @@ const auth = require('./api/auth');
 const search = require('./api/search');
 const posts = require('./api/posts');
 const profile = require('./api/profile');
+const notifications = require('./api/notifications');
 
 dotenv.config({ path: './.env' });
 
@@ -28,11 +29,12 @@ nextApp.prepare().then(() => {
   app.use('/api/search', search);
   app.use('/api/posts', posts);
   app.use('/api/profile', profile);
+  app.use('/api/notifications', notifications);
 
   app.all('*', (req, res) => handle(req, res));
 
   server.listen(PORT, (err) => {
     if (err) throw err;
-    console.log(`Express server running on ${PORT}`);
+    console.warn(`Express server running on ${PORT}`);
   });
 });

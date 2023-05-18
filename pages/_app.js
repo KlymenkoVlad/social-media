@@ -12,9 +12,11 @@ class MyApp extends App {
     const { token } = parseCookies(ctx);
     let pageProps = {};
 
-    const protectedRoutes = ctx.pathname === '/'
-    || ctx.pathname === '/[username]'
-    || ctx.pathname === '/post/[postId]';
+    const protectedRoutes =
+      ctx.pathname === '/' ||
+      ctx.pathname === '/[username]' ||
+      ctx.pathname === '/post/[postId]' ||
+      ctx.pathname === '/notifications';
 
     if (!token) {
       protectedRoutes && redirectUser(ctx, '/login');
@@ -23,7 +25,9 @@ class MyApp extends App {
         pageProps = await Component.getInitialProps(ctx);
       }
       try {
-        const res = await axios.get(`${baseUrl}/api/auth`, { headers: { Authorization: token } });
+        const res = await axios.get(`${baseUrl}/api/auth`, {
+          headers: { Authorization: token },
+        });
 
         const { user, userFollowStats } = res.data;
 
