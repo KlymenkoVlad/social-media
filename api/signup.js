@@ -7,8 +7,10 @@ const isEmail = require('validator/lib/isEmail');
 const UserModel = require('../models/UserModel');
 const ProfileModel = require('../models/ProfileModel');
 const FollowerModel = require('../models/FollowerModel');
+const NotificationModel = require('../models/NotificationModel');
 
-const userPng = 'https://res.cloudinary.com/indersingh/image/upload/v1593464618/App/user_mklcpl.png';
+const userPng =
+  'https://res.cloudinary.com/indersingh/image/upload/v1593464618/App/user_mklcpl.png';
 
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
@@ -82,13 +84,24 @@ router.post('/', async (req, res) => {
     if (twitter) profileFields.social.twitter = twitter;
 
     await new ProfileModel(profileFields).save();
-    await new FollowerModel({ user: user._id, followers: [], following: [] }).save();
+    await new FollowerModel({
+      user: user._id,
+      followers: [],
+      following: [],
+    }).save();
+
+    await new NotificationModel({ user: user._id, notifications: [] }).save();
 
     const payload = { userId: user._id };
-    jwt.sign(payload, process.env.jwtSecret, { expiresIn: '2d' }, (err, token) => {
-      if (err) throw err;
-      res.status(200).json(token);
-    });
+    jwt.sign(
+      payload,
+      process.env.jwtSecret,
+      { expiresIn: '2d' },
+      (err, token) => {
+        if (err) throw err;
+        res.status(200).json(token);
+      }
+    );
   } catch (error) {
     console.error(error);
     return res.status(500).send('Server error');

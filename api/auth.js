@@ -9,6 +9,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const UserModel = require('../models/UserModel');
 const FollowerModel = require('../models/FollowerModel');
+const NotificationModel = require('../models/NotificationModel');
+const { newLikeNotification } = require('../utilsServer/notificationActions');
 
 router.get('/', authMiddleware, async (req, res) => {
   const { userId } = req;
@@ -27,21 +29,36 @@ router.post('/', async (req, res) => {
 
   if (!isEmail(email)) return res.status(401).send('Invalid email');
 
-  if (password.length < 6) return res.status(401).send('Password must be atleast 6 characters');
+  if (password.length < 6)
+    return res.status(401).send('Password must be atleast 6 characters');
 
   try {
-    const user = await UserModel.findOne({ email: email.toLowerCase() }).select('+password');
+    const user = await UserModel.findOne({ email: email.toLowerCase() }).select(
+      '+password'
+    );
     if (!user) return res.status(401).send('No such user');
     const isPassword = await bcrypt.compare(password, user.password);
     if (!isPassword) {
       return res.status(401).send('Invalid credential');
     }
 
-    const payload = { userId: user._id };
-    jwt.sign(payload, process.env.jwtSecret, { expiresIn: '2d' }, (err, token) => {
-      if (err) throw err;
-      res.status(200).json(token);
+    const notificationModel = await NotificationModel.findOne({
+      user: user._id,
     });
+
+    if (!notificationModel) {
+      await new NotificationModel({ user: user._id, notifications: [] }).save();
+    }
+    const payload = { userId: user._id };
+    jwt.sign(
+      payload,
+      process.env.jwtSecret,
+      { expiresIn: '2d' },
+      (err, token) => {
+        if (err) throw err;
+        res.status(200).json(token);
+      }
+    );
   } catch (error) {
     console.error(error);
     return res.status(500).send('Server error');

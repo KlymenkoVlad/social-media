@@ -7,13 +7,20 @@ const authMiddleware = require('../middleware/authMiddleware');
 const UserModel = require('../models/UserModel');
 const PostModel = require('../models/PostModel');
 const FollowerModel = require('../models/FollowerModel');
+const {
+  newLikeNotification,
+  removeLikeNotification,
+  newCommentNotification,
+  removeCommentNotification,
+} = require('../utilsServer/notificationActions');
 
 // Create a Post
 
 router.post('/', authMiddleware, async (req, res) => {
   const { text, location, picUrl } = req.body;
 
-  if (text.length < 1) return res.status(401).send('Text must be atleast 1 character');
+  if (text.length < 1)
+    return res.status(401).send('Text must be atleast 1 character');
 
   try {
     const newPost = {
@@ -21,7 +28,7 @@ router.post('/', authMiddleware, async (req, res) => {
       text,
     };
 
-    if (location)newPost.location = location;
+    if (location) newPost.location = location;
     if (picUrl) newPost.picUrl = picUrl;
 
     const post = await new PostModel(newPost).save();
@@ -45,7 +52,8 @@ router.get('/', authMiddleware, async (req, res) => {
     let posts;
 
     if (number === 1) {
-      posts = await PostModel.find().sort({ createdAt: -1 })
+      posts = await PostModel.find()
+        .sort({ createdAt: -1 })
         .limit(size)
         .populate('user')
         .populate('comments.user');
@@ -69,20 +77,28 @@ router.get('/', authMiddleware, async (req, res) => {
     let postsToBeSent = [];
 
     if (loggedUser.following.length === 0) {
-      postsToBeSent = posts.filter((post) => post.user._id.toString() === userId);
+      postsToBeSent = posts.filter(
+        (post) => post.user._id.toString() === userId
+      );
     } else {
       for (let i = 0; i < loggedUser.following.length; i++) {
         const foundPostsFromFollowing = posts.filter(
-          (post) => post.user._id.toString() === loggedUser.following[i].user.toString(),
+          (post) =>
+            post.user._id.toString() === loggedUser.following[i].user.toString()
         );
-        if (foundPostsFromFollowing.length > 0)postsToBeSent.push(...foundPostsFromFollowing);
+        if (foundPostsFromFollowing.length > 0)
+          postsToBeSent.push(...foundPostsFromFollowing);
       }
-      const foundOwnPosts = posts.filter((post) => post.user._id.toString() === userId);
+      const foundOwnPosts = posts.filter(
+        (post) => post.user._id.toString() === userId
+      );
       if (foundOwnPosts.length > 0) postsToBeSent.push(...foundOwnPosts);
     }
 
-    postsToBeSent.length > 0
-      && postsToBeSent.sort((a, b) => [new Date(b.createdAt) - new Date(a.createdAt)]);
+    postsToBeSent.length > 0 &&
+      postsToBeSent.sort((a, b) => [
+        new Date(b.createdAt) - new Date(a.createdAt),
+      ]);
 
     return res.json(postsToBeSent);
   } catch (error) {
@@ -148,14 +164,20 @@ router.post('/like/:postId', authMiddleware, async (req, res) => {
     if (!post) {
       return res.status(404).send('No Post found');
     }
-    const isLiked = post.likes.filter((like) => like.user.toString() === userId).length > 0;
+    const isLiked =
+      post.likes.filter((like) => like.user.toString() === userId).length > 0;
 
     if (isLiked) {
       return res.status(401).send('Post already liked');
     }
 
-    await post.likes.unshift({ user: userId });
+    await post.likes.push({ user: userId });
     await post.save();
+
+    // if you like your own post - no notification
+    if (post.user.toString() !== userId) {
+      await newLikeNotification(userId, postId, post.user.toString());
+    }
 
     return res.status(200).send('Post liked');
   } catch (error) {
@@ -175,16 +197,23 @@ router.put('/unlike/:postId', authMiddleware, async (req, res) => {
     if (!post) {
       return res.status(404).send('No Post found');
     }
-    const isLiked = post.likes.filter((like) => like.user.toString() === userId).length === 0;
+    const isLiked =
+      post.likes.filter((like) => like.user.toString() === userId).length === 0;
 
     if (isLiked) {
       return res.status(401).send('Post not liked before');
     }
 
-    const index = post.likes.map((like) => like.user.toString()).indexOf(userId);
+    const index = post.likes
+      .map((like) => like.user.toString())
+      .indexOf(userId);
 
     await post.likes.splice(index, 1);
     await post.save();
+
+    if (post.user.toString() !== userId) {
+      removeLikeNotification(userId, postId, post.user.toString());
+    }
 
     return res.status(200).send('Post unliked');
   } catch (error) {
@@ -217,10 +246,12 @@ router.get('/like/:postId', authMiddleware, async (req, res) => {
 router.post('/comment/:postId', authMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
+    const { userId } = req;
 
     const { text } = req.body;
 
-    if (text.length < 1) return res.status(401).send('Comment should be atleast 1 character');
+    if (text.length < 1)
+      return res.status(401).send('Comment should be atleast 1 character');
 
     const post = await PostModel.findById(postId);
 
@@ -231,12 +262,22 @@ router.post('/comment/:postId', authMiddleware, async (req, res) => {
     const newComment = {
       _id: uuid(),
       text,
-      user: req.userId,
+      user: userId,
       date: Date.now(),
     };
 
     await post.comments.unshift(newComment);
     await post.save();
+
+    if (post.user.toString() !== userId) {
+      await newCommentNotification(
+        postId,
+        newComment._id,
+        userId,
+        post.user.toString(),
+        text
+      );
+    }
 
     return res.status(200).json(newComment._id);
   } catch (error) {
@@ -266,11 +307,22 @@ router.delete('/:postId/:commentId', authMiddleware, async (req, res) => {
     const user = await UserModel.findById(userId);
 
     const deleteComment = async () => {
-      const indexOf = post.comments.map((comment) => comment._id).indexOf(commentId);
+      const indexOf = post.comments
+        .map((comment) => comment._id)
+        .indexOf(commentId);
       await post.comments.splice(indexOf, 1);
       await post.save();
       return res.status(200).send('Deleted succesfully');
     };
+
+    if (post.user.toString() !== userId) {
+      await removeCommentNotification(
+        postId,
+        commentId,
+        userId,
+        post.user.toString()
+      );
+    }
 
     if (comment.user.toString() !== userId) {
       if (user.role === 'root') {
