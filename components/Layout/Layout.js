@@ -1,7 +1,16 @@
 import React, { createRef } from 'react';
-import { Container, Visibility, Grid, Sticky, Ref, Divider, Segment } from 'semantic-ui-react';
+import {
+  Container,
+  Visibility,
+  Grid,
+  Sticky,
+  Ref,
+  Divider,
+  Segment,
+  GridColumn,
+} from 'semantic-ui-react';
 import nprogress from 'nprogress';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 import Navbar from './Navbar';
 import HeadTags from './HeadTags';
 import SideMenu from './SideMenu';
@@ -9,6 +18,10 @@ import Search from './Search';
 
 function Layout({ children, user }) {
   const contextRef = createRef();
+
+  const router = useRouter();
+
+  const messagesRoute = router.pathname === '/messages';
 
   Router.onRouteChangeStart = () => nprogress.start();
   Router.onRouteChangeComplete = () => nprogress.done();
@@ -21,25 +34,32 @@ function Layout({ children, user }) {
         <div style={{ marginLeft: '1rem', marginRight: '1rem' }}>
           <Ref innerRef={contextRef}>
             <Grid>
-              <Grid.Column floated="left" width={2}>
-                <Sticky context={contextRef}>
-                  <SideMenu user={user} />
-                </Sticky>
-              </Grid.Column>
+              {!messagesRoute ? (
+                <>
+                  <Grid.Column floated="left" width={2}>
+                    <Sticky context={contextRef}>
+                      <SideMenu user={user} />
+                    </Sticky>
+                  </Grid.Column>
 
-              <Grid.Column width={10}>
-                <Visibility context={contextRef}>
-                  {children}
-                </Visibility>
-              </Grid.Column>
+                  <Grid.Column width={10}>
+                    <Visibility context={contextRef}>{children}</Visibility>
+                  </Grid.Column>
 
-              <Grid.Column floated="left" width={4}>
-                <Sticky context={contextRef}>
-                  <Segment basic>
-                    <Search />
-                  </Segment>
-                </Sticky>
-              </Grid.Column>
+                  <Grid.Column floated="left" width={4}>
+                    <Sticky context={contextRef}>
+                      <Segment basic>
+                        <Search />
+                      </Segment>
+                    </Sticky>
+                  </Grid.Column>
+                </>
+              ) : (
+                <>
+                  <Grid.Column floated="left" width={1} />
+                  <Grid.Column width={15}>{children}</Grid.Column>
+                </>
+              )}
             </Grid>
           </Ref>
         </div>
@@ -52,7 +72,6 @@ function Layout({ children, user }) {
           </Container>
         </>
       )}
-
     </>
   );
 }

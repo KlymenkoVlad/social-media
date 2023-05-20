@@ -19,6 +19,21 @@ import calculateTime from '../../utils/calculateTime';
 import baseUrl from '../../utils/baseUrl';
 import { NoPostFound } from '../../components/Layout/NoData';
 
+export async function getServerSideProps(context) {
+  try {
+    const { postId } = context.query;
+    const { token } = parseCookies(context);
+
+    const res = await axios.get(`${baseUrl}/api/posts/${postId}`, {
+      headers: { Authorization: token },
+    });
+
+    return { props: { post: res.data } };
+  } catch (error) {
+    return { props: { errorLoading: true } };
+  }
+}
+
 function PostPage({ post, errorLoading, user }) {
   if (errorLoading) {
     return <NoPostFound />;
@@ -124,20 +139,5 @@ function PostPage({ post, errorLoading, user }) {
     </Container>
   );
 }
-
-PostPage.getInitialProps = async (ctx) => {
-  try {
-    const { postId } = ctx.query;
-    const { token } = parseCookies(ctx);
-
-    const res = await axios.get(`${baseUrl}/api/posts/${postId}`, {
-      headers: { Authorization: token },
-    });
-
-    return { post: res.data };
-  } catch (error) {
-    return { errorLoading: true };
-  }
-};
 
 export default PostPage;

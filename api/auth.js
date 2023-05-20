@@ -10,6 +10,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const UserModel = require('../models/UserModel');
 const FollowerModel = require('../models/FollowerModel');
 const NotificationModel = require('../models/NotificationModel');
+const ChatModel = require('../models/ChatModel');
 const { newLikeNotification } = require('../utilsServer/notificationActions');
 
 router.get('/', authMiddleware, async (req, res) => {
@@ -42,12 +43,12 @@ router.post('/', async (req, res) => {
       return res.status(401).send('Invalid credential');
     }
 
-    const notificationModel = await NotificationModel.findOne({
+    const chatModel = await ChatModel.findOne({
       user: user._id,
     });
 
-    if (!notificationModel) {
-      await new NotificationModel({ user: user._id, notifications: [] }).save();
+    if (!chatModel) {
+      await new ChatModel({ user: user._id, chats: [] }).save();
     }
     const payload = { userId: user._id };
     jwt.sign(
