@@ -2,6 +2,7 @@ const express = require('express');
 
 const ChatModel = require('../models/ChatModel');
 const authMiddleware = require('../middleware/authMiddleware');
+const UserModel = require('../models/UserModel');
 
 const router = express.Router();
 
@@ -27,6 +28,55 @@ router.get('/', authMiddleware, async (req, res) => {
       }));
     }
     return res.json(chatsToBeSent);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Server Error');
+  }
+});
+
+// get user info
+
+router.get('/user/:userToFindId', authMiddleware, async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.params.userToFindId);
+
+    if (!user) {
+      return res.status(404).send('No user found');
+    }
+
+    return res.json({ name: user.name, profilePicUrl: user.profilePicUrl });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Server Error');
+  }
+});
+
+// delete a chat
+
+router.delete('/:messagesWith', authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req;
+    const { messagesWith } = req.params;
+
+    const user = await ChatModel.findOne({ user: userId });
+
+    const chatToDelete = user.chats.find(
+      (chat) => chat.messagesWith.toString() === messagesWith
+    );
+
+    if (!chatToDelete) {
+      return res.status(404).send('Chat not found');
+    }
+
+    const indexOf = user.chats
+      .map((chat) => chat.messagesWith.toString())
+      .indexOf(messagesWith);
+
+    user.chats.splice(indexOf, 1);
+
+    await user.save();
+
+    return res.status(200).send('Chat deleted');
   } catch (error) {
     console.error(error);
     return res.status(500).send('Server Error');

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import io from 'socket.io-client';
 import axios from 'axios';
 import { Segment } from 'semantic-ui-react';
 import { parseCookies } from 'nookies';
@@ -9,7 +10,13 @@ import CreatePost from '../components/Post/CreatePost';
 import CardPost from '../components/Post/CardPost';
 import { NoPosts } from '../components/Layout/NoData';
 import { PostDeleteToastr } from '../components/Layout/Toastr';
-import { PlaceHolderPosts, EndMessage } from '../components/Layout/PlaceHolderGroup';
+import {
+  PlaceHolderPosts,
+  EndMessage,
+} from '../components/Layout/PlaceHolderGroup';
+import getUserInfo from '../utils/getUserInfo';
+import MessageNotificationModal from '../components/Home/MessageNotificationModal';
+import newMsgSound from '../utils/newMsgSound';
 
 function Index({ user, postsData, errorLoading }) {
   const [posts, setPosts] = useState(postsData);
@@ -18,8 +25,42 @@ function Index({ user, postsData, errorLoading }) {
 
   const [pageNumber, setPageNumber] = useState(2);
 
+  const socket = useRef();
+
+  const [newMessageReceived, setNewMessageReceived] = useState(null);
+  const [newMessageModal, showNewMessageModal] = useState(false);
+
   useEffect(() => {
+    if (!socket.current) {
+      socket.current = io(baseUrl);
+    }
+
+    if (socket.current) {
+      socket.current.emit('join', { userId: user._id });
+
+      socket.current.on('newMsgReceived', async ({ newMsg }) => {
+        const { name, profilePicUrl } = await getUserInfo(newMsg.sender);
+
+        if (user.newMessagePopup) {
+          setNewMessageReceived({
+            ...newMsg,
+            senderName: name,
+            senderProfilePic: profilePicUrl,
+          });
+          showNewMessageModal(true);
+        }
+        newMsgSound(name);
+      });
+    }
+
     document.title = `Welcome, ${user.name.split(' ')[0]}`;
+
+    return () => {
+      if (socket.current) {
+        socket.current.emit('userDisconnect');
+        socket.current.off();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -28,14 +69,12 @@ function Index({ user, postsData, errorLoading }) {
 
   const fetchDataOnScroll = async () => {
     try {
-      const res = await axios.get(
-        `${baseUrl}/api/posts`,
-        { headers: { Authorization: cookie.get('token') },
-          params: { pageNumber },
-        },
-      );
+      const res = await axios.get(`${baseUrl}/api/posts`, {
+        headers: { Authorization: cookie.get('token') },
+        params: { pageNumber },
+      });
 
-      if (res.data.length === 0)setHasMore(false);
+      if (res.data.length === 0) setHasMore(false);
 
       setPosts((prev) => [...prev, ...res.data]);
       setPageNumber((prev) => prev + 1);
@@ -47,30 +86,39 @@ function Index({ user, postsData, errorLoading }) {
   return (
     <>
       {showToastr && <PostDeleteToastr />}
+
+      {newMessageModal && newMessageReceived !== null && (
+        <MessageNotificationModal
+          socket={socket}
+          showNewMessageModal={showNewMessageModal}
+          newMessageModal={newMessageModal}
+          newMessageReceived={newMessageReceived}
+          user={user}
+        />
+      )}
       <Segment>
         <CreatePost user={user} setPosts={setPosts} />
-        {
-  posts.length === 0 || errorLoading ? <NoPosts /> : (
-    <InfiniteScroll
-      hasMore={hasMore}
-      next={fetchDataOnScroll}
-      loader={<PlaceHolderPosts />}
-      endMessage={<EndMessage />}
-      dataLength={posts.length}
-    >
-      {posts.map((post) => (
-        <CardPost
-          key={post._id}
-          post={post}
-          user={user}
-          setPosts={setPosts}
-          setShowToastr={setShowToastr}
-        />
-      ))}
-    </InfiniteScroll>
-  )
-}
-
+        {posts.length === 0 || errorLoading ? (
+          <NoPosts />
+        ) : (
+          <InfiniteScroll
+            hasMore={hasMore}
+            next={fetchDataOnScroll}
+            loader={<PlaceHolderPosts />}
+            endMessage={<EndMessage />}
+            dataLength={posts.length}
+          >
+            {posts.map((post) => (
+              <CardPost
+                key={post._id}
+                post={post}
+                user={user}
+                setPosts={setPosts}
+                setShowToastr={setShowToastr}
+              />
+            ))}
+          </InfiniteScroll>
+        )}
       </Segment>
     </>
   );

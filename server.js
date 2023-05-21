@@ -9,8 +9,17 @@ const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 const connectDb = require('./utilsServer/connectDb');
-const { addUser, removeUser } = require('./utilsServer/roomActions');
-const { loadMessages } = require('./utilsServer/messageActions');
+const {
+  addUser,
+  removeUser,
+  findConnectedUser,
+} = require('./utilsServer/roomActions');
+const {
+  loadMessages,
+  sendMsg,
+  setMsgToUnread,
+  deleteMsg,
+} = require('./utilsServer/messageActions');
 
 const signup = require('./api/signup');
 const auth = require('./api/auth');
@@ -44,7 +53,52 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('disconnect', () => {
+  socket.on('sendNewMsg', async ({ userId, msgSendToUserId, msg }) => {
+    const { newMsg, error } = await sendMsg(userId, msgSendToUserId, msg);
+    const receiverSocket = findConnectedUser(msgSendToUserId);
+
+    if (receiverSocket) {
+      // when you want ot send message to a particular socket
+      io.to(receiverSocket.socketId).emit('newMsgReceived', { newMsg });
+    } else {
+      await setMsgToUnread(msgSendToUserId);
+    }
+
+    if (!error) {
+      socket.emit('msgSent', { newMsg });
+    } else {
+      socket.emit('noChatFound');
+    }
+  });
+
+  socket.on('deleteMsg', async ({ userId, messagesWith, messageId }) => {
+    const { success } = await deleteMsg(userId, messagesWith, messageId);
+
+    if (success) {
+      socket.emit('msgDeleted');
+    }
+  });
+
+  socket.on(
+    'sendMsgFromNotification',
+    async ({ userId, msgSendToUserId, msg }) => {
+      const { newMsg, error } = await sendMsg(userId, msgSendToUserId, msg);
+      const receiverSocket = findConnectedUser(msgSendToUserId);
+
+      if (receiverSocket) {
+        // when you want ot send message to a particular socket
+        io.to(receiverSocket.socketId).emit('newMsgReceived', { newMsg });
+      } else {
+        await setMsgToUnread(msgSendToUserId);
+      }
+
+      if (!error) {
+        socket.emit('msgSentFromNotification');
+      }
+    }
+  );
+
+  socket.on('userDisconnect', () => {
     removeUser(socket.id);
     console.log('User disconnected');
   });

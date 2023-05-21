@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Icon, Popup } from 'semantic-ui-react';
 import calculateTime from '../../utils/calculateTime';
 
-function Message({ message, user, bannerProfilePic, divRef }) {
+function Message({ message, user, bannerProfilePic, divRef, deleteMsg }) {
   const [deleteIcon, showDeleteIcon] = useState(false);
 
   const ifYouSender = message.sender === user._id;
@@ -19,7 +19,6 @@ function Message({ message, user, bannerProfilePic, divRef }) {
         />
 
         <div className={ifYouSender ? 'ownBubble own' : 'otherBubble other'}>
-          {console.log(ifYouSender)}
           {message.msg}
         </div>
 
@@ -30,7 +29,7 @@ function Message({ message, user, bannerProfilePic, divRef }) {
                 name="trash"
                 color="red"
                 style={{ cursor: 'pointer' }}
-                // onClick={() => deleteMsg(message._id)}
+                onClick={() => deleteMsg(message._id)}
               />
             }
             content="This will only delete the message from your inbox!"
