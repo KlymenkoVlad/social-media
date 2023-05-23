@@ -28,6 +28,7 @@ const posts = require('./api/posts');
 const profile = require('./api/profile');
 const notifications = require('./api/notifications');
 const chats = require('./api/chats');
+const reset = require('./api/reset');
 
 dotenv.config({ path: './.env' });
 
@@ -37,6 +38,7 @@ connectDb();
 io.on('connection', (socket) => {
   socket.on('join', async ({ userId }) => {
     const users = await addUser(userId, socket.id);
+    console.log(users);
 
     setInterval(() => {
       socket.emit('connectedUsers', {
@@ -48,9 +50,9 @@ io.on('connection', (socket) => {
   socket.on('loadMessages', async ({ userId, messagesWith }) => {
     const { chat, error } = await loadMessages(userId, messagesWith);
 
-    if (!error) {
-      socket.emit('messagesLoaded', { chat });
-    }
+    !error
+      ? socket.emit('messagesLoaded', { chat })
+      : socket.emit('noChatFound');
   });
 
   socket.on('sendNewMsg', async ({ userId, msgSendToUserId, msg }) => {
@@ -58,25 +60,21 @@ io.on('connection', (socket) => {
     const receiverSocket = findConnectedUser(msgSendToUserId);
 
     if (receiverSocket) {
-      // when you want ot send message to a particular socket
+      // WHEN YOU WANT TO SEND MESSAGE TO A PARTICULAR SOCKET
       io.to(receiverSocket.socketId).emit('newMsgReceived', { newMsg });
-    } else {
+    }
+    //
+    else {
       await setMsgToUnread(msgSendToUserId);
     }
 
-    if (!error) {
-      socket.emit('msgSent', { newMsg });
-    } else {
-      socket.emit('noChatFound');
-    }
+    !error && socket.emit('msgSent', { newMsg });
   });
 
   socket.on('deleteMsg', async ({ userId, messagesWith, messageId }) => {
     const { success } = await deleteMsg(userId, messagesWith, messageId);
 
-    if (success) {
-      socket.emit('msgDeleted');
-    }
+    if (success) socket.emit('msgDeleted');
   });
 
   socket.on(
@@ -86,22 +84,19 @@ io.on('connection', (socket) => {
       const receiverSocket = findConnectedUser(msgSendToUserId);
 
       if (receiverSocket) {
-        // when you want ot send message to a particular socket
+        // WHEN YOU WANT TO SEND MESSAGE TO A PARTICULAR SOCKET
         io.to(receiverSocket.socketId).emit('newMsgReceived', { newMsg });
-      } else {
+      }
+      //
+      else {
         await setMsgToUnread(msgSendToUserId);
       }
 
-      if (!error) {
-        socket.emit('msgSentFromNotification');
-      }
+      !error && socket.emit('msgSentFromNotification');
     }
   );
 
-  socket.on('userDisconnect', () => {
-    removeUser(socket.id);
-    console.log('User disconnected');
-  });
+  socket.on('userDisconnect', () => removeUser(socket.id));
 });
 
 nextApp.prepare().then(() => {
@@ -114,6 +109,7 @@ nextApp.prepare().then(() => {
   app.use('/api/profile', profile);
   app.use('/api/notifications', notifications);
   app.use('/api/chats', chats);
+  app.use('/api/reset', reset);
 
   app.all('*', (req, res) => handle(req, res));
 

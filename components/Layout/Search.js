@@ -59,12 +59,10 @@ function SearchComponent() {
 
 function ResultRenderer({ _id, profilePicUrl, name }) {
   return (
-    <List key={_id}>
-      <List.Item>
-        <Image src={profilePicUrl} alt="ProfilePic" avatar />
-        <List.Content header={name} as="a" />
-      </List.Item>
-    </List>
+    <List.Item key={_id}>
+      <Image src={profilePicUrl} alt="ProfilePic" avatar />
+      <List.Content header={name} as="a" />
+    </List.Item>
   );
 }
 
