@@ -41,7 +41,12 @@ function NotificationPortal({
                   {name}{' '}
                 </Feed.User>{' '}
                 liked your{' '}
-                <a onClick={() => router.push(`/post/${postId}`)}> post</a>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/post/${postId}`)}
+                >
+                  Post
+                </button>
                 <Feed.Date>{calculateTime(Date.now())}</Feed.Date>
               </Feed.Summary>
             </Feed.Content>

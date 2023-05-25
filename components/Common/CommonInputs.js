@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Form,
-  Button,
-  Message,
-  Segment,
-  TextArea,
-  Divider,
-} from 'semantic-ui-react';
+import { Form, Button, Message, TextArea, Divider } from 'semantic-ui-react';
 
 function CommonInputs({
   user: { bio, facebook, instagram, youtube, twitter },

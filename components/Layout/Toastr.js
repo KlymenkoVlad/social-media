@@ -1,6 +1,6 @@
-import { toast, ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from 'react-toastify';
 
-export const PostDeleteToastr = () => {
+export function PostDeleteToastr() {
   return (
     <ToastContainer
       position="bottom-center"
@@ -11,21 +11,22 @@ export const PostDeleteToastr = () => {
       rtl={false}
       pauseOnFocusLoss
       draggable
-      pauseOnHover={false}>
-      {toast.info("Deleted Successfully", {
-        position: "bottom-center",
+      pauseOnHover={false}
+    >
+      {toast.info('Deleted Successfully', {
+        position: 'bottom-center',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: false,
         draggable: true,
-        progress: undefined
+        progress: undefined,
       })}
     </ToastContainer>
   );
-};
+}
 
-export const ErrorToastr = ({ error }) => {
+export function ErrorToastr({ error }) {
   return (
     <ToastContainer
       position="bottom-center"
@@ -36,39 +37,43 @@ export const ErrorToastr = ({ error }) => {
       rtl={false}
       pauseOnFocusLoss
       draggable
-      pauseOnHover={false}>
+      pauseOnHover={false}
+    >
       {toast.error(error, {
-        position: "bottom-center",
+        position: 'bottom-center',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: false,
         draggable: true,
-        progress: undefined
+        progress: undefined,
       })}
     </ToastContainer>
   );
-};
+}
 
-export const MsgSentToastr = () => (
-  <ToastContainer
-    position="bottom-center"
-    autoClose={3000}
-    hideProgressBar={false}
-    newestOnTop={false}
-    closeOnClick
-    rtl={false}
-    pauseOnFocusLoss
-    draggable
-    pauseOnHover={false}>
-    {toast.success("Sent successfully", {
-      position: "bottom-center",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined
-    })}
-  </ToastContainer>
-);
+export function MsgSentToastr() {
+  return (
+    <ToastContainer
+      position="bottom-center"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover={false}
+    >
+      {toast.success('Sent successfully', {
+        position: 'bottom-center',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+      })}
+    </ToastContainer>
+  );
+}

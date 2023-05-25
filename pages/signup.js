@@ -90,10 +90,12 @@ function Signup() {
 
       const { CancelToken } = axios;
 
-      const res = await axios.get(`${baseUrl}/api/signup/${username}`, { cancelToken: new CancelToken((canceler) => {
-        cancel = canceler;
-      }) });
-      if (errorMsg !== null)setErrorMsg(null);
+      const res = await axios.get(`${baseUrl}/api/signup/${username}`, {
+        cancelToken: new CancelToken((canceler) => {
+          cancel = canceler;
+        }),
+      });
+      if (errorMsg !== null) setErrorMsg(null);
 
       if (res.data === 'Available') {
         setUsernameAvailable(true);

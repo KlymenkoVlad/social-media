@@ -22,19 +22,19 @@ function NoImageModel({
         <Image floated="left" avatar src={post.user.profilePicUrl} />
 
         <Card.Header>
-          <Link href={`/${post.user.username}`}>
-            {post.user.name}
-          </Link>
+          <Link href={`/${post.user.username}`}>{post.user.name}</Link>
         </Card.Header>
 
         <Card.Meta>{calculateTime(post.createdAt)}</Card.Meta>
 
         {post.location && <Card.Meta content={post.location} />}
 
-        <Card.Description style={{
-          fontSize: '17px',
-          letterSpacing: '0.1px',
-          wordSpacing: '0.35px' }}
+        <Card.Description
+          style={{
+            fontSize: '17px',
+            letterSpacing: '0.1px',
+            wordSpacing: '0.35px',
+          }}
         >
           {post.text}
         </Card.Description>
@@ -50,29 +50,34 @@ function NoImageModel({
 
         <LikesList
           postId={post._id}
-          trigger={likes.length > 0 && (
-          <span className="spanLikesList">
-            {`${likes.length} ${likes.length === 1 ? 'like' : 'likes'}`}
-          </span>
-          )}
+          trigger={
+            likes.length > 0 && (
+              <span className="spanLikesList">
+                {`${likes.length} ${likes.length === 1 ? 'like' : 'likes'}`}
+              </span>
+            )
+          }
         />
 
         <Divider hidden />
 
-        <div style={{
-          overflow: 'auto',
-          height: comments.length > 2 ? '200px' : '60px',
-          marginBottom: '8px' }}
+        <div
+          style={{
+            overflow: 'auto',
+            height: comments.length > 2 ? '200px' : '60px',
+            marginBottom: '8px',
+          }}
         >
-          {comments.length > 0 && comments.map((comment) => (
-            <PostComments
-              key={comment._id}
-              comment={comment}
-              postId={post._id}
-              user={user}
-              setComments={setComments}
-            />
-          ))}
+          {comments.length > 0 &&
+            comments.map((comment) => (
+              <PostComments
+                key={comment._id}
+                comment={comment}
+                postId={post._id}
+                user={user}
+                setComments={setComments}
+              />
+            ))}
         </div>
 
         <CommentInputField

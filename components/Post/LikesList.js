@@ -14,10 +14,9 @@ function LikesList({ postId, trigger }) {
   const getLikesList = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${baseUrl}/api/posts/like/${postId}`,
-        { headers: { Authorization: Cookies.get('token') } },
-      );
+      const res = await axios.get(`${baseUrl}/api/posts/like/${postId}`, {
+        headers: { Authorization: Cookies.get('token') },
+      });
       setLikesList(res.data);
     } catch (error) {
       alert(catchErrors(error));
@@ -34,28 +33,32 @@ function LikesList({ postId, trigger }) {
       trigger={trigger}
       wide
     >
-      {loading ? <LikesPlaceHolder /> : (
+      {loading ? (
+        <LikesPlaceHolder />
+      ) : (
         <>
           {likesList.length > 0 && (
-          <div style={{
-            overflow: 'auto',
-            maxHeight: '15rem',
-            height: '15rem',
-            minWidth: '210px' }}
-          >
-            <List selection size="large">
-              {likesList.map((like) => (
-                <List.Item key={like._id}>
-                  <Image avatar src={like.user.profilePicUrl} />
-                  <List.Content>
-                    <Link href={`/${like.user.username}`}>
-                      <List.Header as="a" content={like.user.name} />
-                    </Link>
-                  </List.Content>
-                </List.Item>
-              ))}
-            </List>
-          </div>
+            <div
+              style={{
+                overflow: 'auto',
+                maxHeight: '15rem',
+                height: '15rem',
+                minWidth: '210px',
+              }}
+            >
+              <List selection size="large">
+                {likesList.map((like) => (
+                  <List.Item key={like._id}>
+                    <Image avatar src={like.user.profilePicUrl} />
+                    <List.Content>
+                      <Link href={`/${like.user.username}`}>
+                        <List.Header as="a" content={like.user.name} />
+                      </Link>
+                    </List.Content>
+                  </List.Item>
+                ))}
+              </List>
+            </div>
           )}
         </>
       )}

@@ -50,12 +50,7 @@ function UpdateProfile({ Profile }) {
           return setErrorMsg('Error uploading Image');
         }
 
-        await profileUpdate(
-          profile,
-          setLoading,
-          setErrorMsg,
-          profilePicUrl,
-        );
+        await profileUpdate(profile, setLoading, setErrorMsg, profilePicUrl);
       }}
     >
       <Message

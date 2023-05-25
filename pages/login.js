@@ -6,7 +6,8 @@ import {
   Segment,
   TextArea,
   Divider,
-} from 'semantic-ui-react'; import axios from 'axios';
+} from 'semantic-ui-react';
+import axios from 'axios';
 import cookie from 'js-cookie';
 import { loginUser } from '../utils/authUser';
 import baseUrl from '../utils/baseUrl';

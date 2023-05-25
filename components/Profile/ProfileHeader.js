@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Segment, Grid, Image, Divider, Header, Button, List } from 'semantic-ui-react';
+import {
+  Segment,
+  Grid,
+  Image,
+  Divider,
+  Header,
+  Button,
+  List,
+} from 'semantic-ui-react';
 import { followUser, unfollowUser } from '../../utils/profileActions';
 
 function ProfileHead({
@@ -10,9 +18,11 @@ function ProfileHead({
 }) {
   const [loading, setLoading] = useState(false);
 
-  const isFollowing = loggedUserFollowStats.following.length > 0
-  && loggedUserFollowStats.following
-    .filter((following) => following.user === profile.user._id).length > 0;
+  const isFollowing =
+    loggedUserFollowStats.following.length > 0 &&
+    loggedUserFollowStats.following.filter(
+      (following) => following.user === profile.user._id
+    ).length > 0;
 
   return (
     <Segment>
@@ -79,7 +89,9 @@ function ProfileHead({
                   </List.Item>
                 )}
               </List>
-            ) : <>No Social Media Link</>}
+            ) : (
+              <>No Social Media Link</>
+            )}
           </Grid.Row>
         </Grid.Column>
 
@@ -90,21 +102,27 @@ function ProfileHead({
           <br />
 
           {!ownAccount && (
-          <Button
-            compact
-            loading={loading}
-            disabled={loading}
-            content={isFollowing ? 'Following' : 'Follow'}
-            icon={isFollowing ? 'check circle' : 'add user'}
-            color={isFollowing ? 'instagram' : 'twitter'}
-            onClick={async () => {
-              setLoading(true);
-              isFollowing
-                ? await unfollowUser(profile.user._id, setLoggedUserFollowStats)
-                : await followUser(profile.user._id, setLoggedUserFollowStats);
-              setLoading(false);
-            }}
-          />
+            <Button
+              compact
+              loading={loading}
+              disabled={loading}
+              content={isFollowing ? 'Following' : 'Follow'}
+              icon={isFollowing ? 'check circle' : 'add user'}
+              color={isFollowing ? 'instagram' : 'twitter'}
+              onClick={async () => {
+                setLoading(true);
+                isFollowing
+                  ? await unfollowUser(
+                      profile.user._id,
+                      setLoggedUserFollowStats
+                    )
+                  : await followUser(
+                      profile.user._id,
+                      setLoggedUserFollowStats
+                    );
+                setLoading(false);
+              }}
+            />
           )}
         </Grid.Column>
       </Grid>

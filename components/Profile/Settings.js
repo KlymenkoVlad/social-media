@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Button, Divider, List, Checkbox, Message } from 'semantic-ui-react';
+import {
+  Form,
+  Button,
+  Divider,
+  List,
+  Checkbox,
+  Message,
+} from 'semantic-ui-react';
 import { passwordUpdate, toggleMessagePopup } from '../../utils/profileActions';
 
 function Settings({ newMessagePopup }) {
@@ -40,16 +47,20 @@ function Settings({ newMessagePopup }) {
             />
           </List.Content>
           {showUpdatePassword && (
-          <UpdatePassoword
-            setSuccess={setSuccess}
-            setShowUpdatePassword={setShowUpdatePassword}
-          />
+            <UpdatePassoword
+              setSuccess={setSuccess}
+              setShowUpdatePassword={setShowUpdatePassword}
+            />
           )}
         </List.Item>
         <Divider />
 
         <List.Item>
-          <List.Icon name="paper plane outline" size="large" verticalAlign="middle" />
+          <List.Icon
+            name="paper plane outline"
+            size="large"
+            verticalAlign="middle"
+          />
           <List.Content>
             <List.Header
               onClick={() => setShowMessageSettings(!showMessageSettings)}
@@ -59,15 +70,21 @@ function Settings({ newMessagePopup }) {
           </List.Content>
 
           {showMessageSettings && (
-          <div style={{ marginTop: '10px' }}>
-            Control whether a Popup should appear when there is a new Message
-            <br />
-            <Checkbox
-              checked={popupSettings}
-              toggle
-              onChange={() => toggleMessagePopup(popupSettings, setPopupSettings, setSuccess)}
-            />
-          </div>
+            <div style={{ marginTop: '10px' }}>
+              Control whether a Popup should appear when there is a new Message
+              <br />
+              <Checkbox
+                checked={popupSettings}
+                toggle
+                onChange={() =>
+                  toggleMessagePopup(
+                    popupSettings,
+                    setPopupSettings,
+                    setSuccess
+                  )
+                }
+              />
+            </div>
           )}
         </List.Item>
       </List>
@@ -79,7 +96,10 @@ function UpdatePassoword({ setSuccess, setShowUpdatePassword }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const [userPasswords, setUserPasswords] = useState({ currentPassword: '', newPassword: '' });
+  const [userPasswords, setUserPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+  });
 
   const [showTypedPassword, setShowTypedPassword] = useState({
     field1: false,
@@ -121,7 +141,12 @@ function UpdatePassoword({ setSuccess, setShowUpdatePassword }) {
                 name: 'eye',
                 circular: true,
                 link: true,
-                onClick: () => setShowTypedPassword((prev) => ({ ...prev, field1: !field1 })) }}
+                onClick: () =>
+                  setShowTypedPassword((prev) => ({
+                    ...prev,
+                    field1: !field1,
+                  })),
+              }}
               type={field1 ? 'text' : 'password'}
               iconPosition="left"
               label="Current password"
@@ -137,7 +162,12 @@ function UpdatePassoword({ setSuccess, setShowUpdatePassword }) {
                 name: 'eye',
                 circular: true,
                 link: true,
-                onClick: () => setShowTypedPassword((prev) => ({ ...prev, field2: !field2 })) }}
+                onClick: () =>
+                  setShowTypedPassword((prev) => ({
+                    ...prev,
+                    field2: !field2,
+                  })),
+              }}
               type={field2 ? 'text' : 'password'}
               iconPosition="left"
               label="New password"

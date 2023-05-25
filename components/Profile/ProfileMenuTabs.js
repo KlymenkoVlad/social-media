@@ -20,17 +20,21 @@ function ProfileMenuTabs({
       {ownAccount ? (
         <>
           <Menu.Item
-            name={`${loggedUserFollowStats.followers.length > 0
-              ? loggedUserFollowStats.followers.length
-              : 0} Followers`}
+            name={`${
+              loggedUserFollowStats.followers.length > 0
+                ? loggedUserFollowStats.followers.length
+                : 0
+            } Followers`}
             active={activeItem === 'followers'}
             onClick={() => handleItemClick('followers')}
           />
 
           <Menu.Item
-            name={`${loggedUserFollowStats.following.length > 0
-              ? loggedUserFollowStats.following.length
-              : 0} Following`}
+            name={`${
+              loggedUserFollowStats.following.length > 0
+                ? loggedUserFollowStats.following.length
+                : 0
+            } Following`}
             active={activeItem === 'following'}
             onClick={() => handleItemClick('following')}
           />

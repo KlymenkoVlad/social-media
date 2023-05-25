@@ -54,7 +54,7 @@ function CreatePost({ user, setPosts }) {
       newPost.location,
       picUrl,
       setPosts,
-      setNewPost,
+      setNewPost
     );
 
     setMedia(null);
@@ -123,10 +123,7 @@ function CreatePost({ user, setPosts }) {
           }}
         >
           {media === null ? (
-            <Icon
-              name="plus"
-              size="big"
-            />
+            <Icon name="plus" size="big" />
           ) : (
             <Image
               style={{ height: '150px', width: '150px' }}

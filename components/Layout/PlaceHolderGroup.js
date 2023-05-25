@@ -12,22 +12,22 @@ import { range } from 'lodash';
 
 export const PlaceHolderPosts = () =>
   range(1, 3).map((item) => (
-  <>
+    <>
       <Placeholder key={item} fluid>
-      <Placeholder.Header image>
+        <Placeholder.Header image>
           <Placeholder.Line />
           <Placeholder.Line />
         </Placeholder.Header>
-      <Placeholder.Paragraph>
+        <Placeholder.Paragraph>
           <Placeholder.Line />
           <Placeholder.Line />
           <Placeholder.Line />
           <Placeholder.Line />
         </Placeholder.Paragraph>
-    </Placeholder>
+      </Placeholder>
       <Divider hidden />
     </>
-));
+  ));
 
 export function PlaceHolderSuggestions() {
   return (
@@ -61,16 +61,16 @@ export function PlaceHolderSuggestions() {
 
 export const PlaceHolderNotifications = () =>
   range(1, 10).map((item) => (
-  <>
+    <>
       <Placeholder key={item}>
-      <Placeholder.Header image>
+        <Placeholder.Header image>
           <Placeholder.Line />
           <Placeholder.Line />
         </Placeholder.Header>
-    </Placeholder>
+      </Placeholder>
       <Divider hidden />
     </>
-));
+  ));
 
 export function EndMessage() {
   return (
@@ -83,9 +83,9 @@ export function EndMessage() {
 
 export const LikesPlaceHolder = () =>
   range(1, 6).map((item) => (
-  <Placeholder key={item} style={{ minWidth: '200px' }}>
+    <Placeholder key={item} style={{ minWidth: '200px' }}>
       <Placeholder.Header image>
-      <Placeholder.Line length="full" />
-    </Placeholder.Header>
+        <Placeholder.Line length="full" />
+      </Placeholder.Header>
     </Placeholder>
-));
+  ));

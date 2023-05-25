@@ -24,7 +24,7 @@ export function FooterMessage() {
   const signupRoute = router.pathname === '/signup';
 
   return (
-    <>
+    <div>
       {signupRoute ? (
         <>
           <Message attached="bottom" warning>
@@ -47,6 +47,6 @@ export function FooterMessage() {
           <Divider hidden />
         </>
       )}
-    </>
+    </div>
   );
 }

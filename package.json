@@ -1,10 +1,10 @@
 {
-  "name": "inder-social-media",
-  "version": "0.1.0",
+  "name": "vlad-social-media",
+  "version": "0.9.0",
   "private": false,
   "scripts": {
     "dev": "nodemon server.js",
-    "build": "next build",
+    "build": "next build --no-lint",
     "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
