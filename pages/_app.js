@@ -17,6 +17,7 @@ class MyApp extends App {
       ctx.pathname === '/[username]' ||
       ctx.pathname === '/post/[postId]' ||
       ctx.pathname === '/notifications' ||
+      ctx.pathname === '/search' ||
       ctx.pathname === '/messages';
 
     if (!token) {

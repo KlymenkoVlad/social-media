@@ -21,6 +21,8 @@ const {
   deleteMsg,
 } = require('./utilsServer/messageActions');
 
+const { likeOrUnlikePost } = require('./utils/likeOrUnlikePost');
+
 const signup = require('./api/signup');
 const auth = require('./api/auth');
 const search = require('./api/search');
@@ -38,13 +40,35 @@ connectDb();
 io.on('connection', (socket) => {
   socket.on('join', async ({ userId }) => {
     const users = await addUser(userId, socket.id);
-    console.log(users);
 
     setInterval(() => {
       socket.emit('connectedUsers', {
         users: users.filter((user) => user.userId !== userId),
       });
     }, 10000);
+  });
+
+  socket.on('likePost', async ({ postId, userId, like }) => {
+    const { success, error, name, profilePicUrl, username, postByUserId } =
+      await likeOrUnlikePost(postId, userId, like);
+
+    if (success) {
+      socket.emit('postLiked');
+
+      if (postByUserId !== userId) {
+        const receiverSocket = findConnectedUser(postByUserId);
+
+        if (receiverSocket && like) {
+          // when you want ot send date to one particular client
+          io.to(receiverSocket.socketId).emit('newNotificationReceived', {
+            name,
+            profilePicUrl,
+            username,
+            postId,
+          });
+        }
+      }
+    }
   });
 
   socket.on('loadMessages', async ({ userId, messagesWith }) => {

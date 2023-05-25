@@ -5,20 +5,26 @@ import {
   Grid,
   Sticky,
   Ref,
-  Divider,
   Segment,
-  GridColumn,
 } from 'semantic-ui-react';
 import nprogress from 'nprogress';
 import Router, { useRouter } from 'next/router';
-import Navbar from './Navbar';
+import { createMedia } from '@artsy/fresnel';
 import HeadTags from './HeadTags';
+import Navbar from './Navbar';
 import SideMenu from './SideMenu';
 import Search from './Search';
+import MobileHeader from './MobileHeader';
+
+const AppMedia = createMedia({
+  breakpoints: { zero: 0, mobile: 549, tablet: 850, computer: 1080 },
+});
+
+const mediaStyles = AppMedia.createMediaStyle();
+const { Media, MediaContextProvider } = AppMedia;
 
 function Layout({ children, user }) {
   const contextRef = createRef();
-
   const router = useRouter();
 
   const messagesRoute = router.pathname === '/messages';
@@ -31,43 +37,113 @@ function Layout({ children, user }) {
     <>
       <HeadTags />
       {user ? (
-        <div style={{ marginLeft: '1rem', marginRight: '1rem' }}>
-          <Ref innerRef={contextRef}>
-            <Grid>
-              {!messagesRoute ? (
-                <>
-                  <Grid.Column floated="left" width={2}>
-                    <Sticky context={contextRef}>
-                      <SideMenu user={user} />
-                    </Sticky>
-                  </Grid.Column>
+        <>
+          <style>{mediaStyles}</style>
 
-                  <Grid.Column width={10}>
-                    <Visibility context={contextRef}>{children}</Visibility>
-                  </Grid.Column>
+          <MediaContextProvider disableDynamicMediaQueries>
+            <div style={{ marginLeft: '1rem', marginRight: '1rem' }}>
+              <Media greaterThanOrEqual="computer">
+                <Ref innerRef={contextRef}>
+                  <Grid>
+                    {!messagesRoute ? (
+                      <>
+                        <Grid.Column floated="left" width={2}>
+                          <Sticky context={contextRef}>
+                            <SideMenu user={user} pc />
+                          </Sticky>
+                        </Grid.Column>
 
-                  <Grid.Column floated="left" width={4}>
-                    <Sticky context={contextRef}>
-                      <Segment basic>
-                        <Search />
-                      </Segment>
-                    </Sticky>
-                  </Grid.Column>
-                </>
-              ) : (
-                <>
-                  <Grid.Column floated="left" width={1} />
-                  <Grid.Column width={15}>{children}</Grid.Column>
-                </>
-              )}
-            </Grid>
-          </Ref>
-        </div>
+                        <Grid.Column width={10}>
+                          <Visibility context={contextRef}>
+                            {children}
+                          </Visibility>
+                        </Grid.Column>
+
+                        <Grid.Column floated="left" width={4}>
+                          <Sticky context={contextRef}>
+                            <Segment basic>
+                              <Search />
+                            </Segment>
+                          </Sticky>
+                        </Grid.Column>
+                      </>
+                    ) : (
+                      <>
+                        <Grid.Column floated="left" width={1} />
+                        <Grid.Column width={15}>{children}</Grid.Column>
+                      </>
+                    )}
+                  </Grid>
+                </Ref>
+              </Media>
+
+              <Media between={['tablet', 'computer']}>
+                <Ref innerRef={contextRef}>
+                  <Grid>
+                    {!messagesRoute ? (
+                      <>
+                        <Grid.Column floated="left" width={1}>
+                          <Sticky context={contextRef}>
+                            <SideMenu user={user} pc={false} />
+                          </Sticky>
+                        </Grid.Column>
+
+                        <Grid.Column width={15}>
+                          <Visibility context={contextRef}>
+                            {children}
+                          </Visibility>
+                        </Grid.Column>
+                      </>
+                    ) : (
+                      <>
+                        <Grid.Column floated="left" width={1} />
+                        <Grid.Column width={15}>{children}</Grid.Column>
+                      </>
+                    )}
+                  </Grid>
+                </Ref>
+              </Media>
+
+              <Media between={['mobile', 'tablet']}>
+                <Ref innerRef={contextRef}>
+                  <Grid>
+                    {!messagesRoute ? (
+                      <>
+                        <Grid.Column floated="left" width={2}>
+                          <Sticky context={contextRef}>
+                            <SideMenu user={user} pc={false} />
+                          </Sticky>
+                        </Grid.Column>
+
+                        <Grid.Column width={14}>
+                          <Visibility context={contextRef}>
+                            {children}
+                          </Visibility>
+                        </Grid.Column>
+                      </>
+                    ) : (
+                      <>
+                        <Grid.Column floated="left" width={1} />
+                        <Grid.Column width={15}>{children}</Grid.Column>
+                      </>
+                    )}
+                  </Grid>
+                </Ref>
+              </Media>
+
+              <Media between={['zero', 'mobile']}>
+                <MobileHeader user={user} />
+                <Grid>
+                  <Grid.Column>{children}</Grid.Column>
+                </Grid>
+              </Media>
+            </div>
+          </MediaContextProvider>
+        </>
       ) : (
         <>
-          {' '}
           <Navbar />
-          <Container style={{ paddingTop: '1rem' }} text>
+          <Container text style={{ paddingTop: '1rem' }}>
             {children}
           </Container>
         </>
